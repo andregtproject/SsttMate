@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-stroke-yellow {
+    color: transparent;
+    -webkit-text-stroke: 1px #FFBB01;
+  }
+}
+
+@font-face {
+  font-family: 'Baloo';
+  src: url('/fonts/baloo/Baloo-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
