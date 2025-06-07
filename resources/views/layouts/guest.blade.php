@@ -13,9 +13,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0" style="background-color: #181D23;">
             <div class="flex flex-col items-center justify-center text-center">
                 <a href="/" class="flex flex-col items-center justify-center">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
@@ -23,7 +24,7 @@
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-[#181D23] border border-[#2A2F36] rounded-lg" style="box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
                 {{ $slot }}
             </div>
         </div>
