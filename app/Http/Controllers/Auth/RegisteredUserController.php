@@ -3,48 +3,48 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Kreait\Firebase\Exception\Auth\EmailExists;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+    // HAPUS __construct DARI SINI
+
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        try {
+            // Panggil service Firebase secara langsung di sini
+            $firebaseAuth = app('firebase.auth');
+            $database = app('firebase.database');
 
-        event(new Registered($user));
+            $createdUser = $firebaseAuth->createUserWithEmailAndPassword($request->email, $request->password);
+            
+            $database->getReference('users/' . $createdUser->uid)
+                ->set([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                ]);
 
-        Auth::login($user);
+            return redirect()->route('login')->with('status', 'Registrasi berhasil! Silakan login.');
 
-        return redirect(route('dashboard', absolute: false));
+        } catch (EmailExists $e) {
+            return back()->withErrors(['email' => 'Alamat email ini sudah terdaftar.'])->withInput();
+        } catch (\Throwable $e) { // Tangkap semua jenis error
+            return back()->withErrors(['error' => 'Gagal membuat pengguna: ' . $e->getMessage()])->withInput();
+        }
     }
 }

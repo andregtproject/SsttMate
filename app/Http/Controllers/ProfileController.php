@@ -5,53 +5,86 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Menampilkan form profil pengguna.
      */
     public function edit(Request $request): View
     {
+        // Ambil UID pengguna dari sesi yang disimpan saat login
+        $uid = $request->session()->get('firebase_uid');
+        $firebaseUser = null;
+
+        if ($uid) {
+            // Ambil data pengguna (nama, email) dari Realtime Database
+            $database = app('firebase.database');
+            $firebaseUser = $database->getReference('users/' . $uid)->getValue();
+        }
+
+        // Kirim data pengguna ke view
         return view('profile.edit', [
-            'user' => $request->user(),
+            // Kita ubah array menjadi objek agar di view tetap bisa pakai $user->name
+            'user' => (object) $firebaseUser,
         ]);
     }
 
     /**
-     * Update the user's profile information.
+     * Memperbarui informasi profil pengguna.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // Ambil UID dari sesi
+        $uid = $request->session()->get('firebase_uid');
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($uid) {
+            // Siapkan data yang akan diupdate
+            $validatedData = $request->validated();
+            $updates = [
+                'name' => $validatedData['name'],
+            ];
+
+            // Update data di Realtime Database
+            $database = app('firebase.database');
+            $database->getReference('users/' . $uid)->update($updates);
+
+            // Catatan: Mengubah email di Firebase Auth adalah proses terpisah dan lebih kompleks.
+            // Untuk saat ini, kita hanya update nama.
         }
-
-        $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Menghapus akun pengguna.
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Validasi password saat ini tetap sama
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
 
-        $user = $request->user();
+        $uid = $request->session()->get('firebase_uid');
 
-        Auth::logout();
+        if ($uid) {
+            try {
+                // 1. Hapus pengguna dari Firebase Authentication
+                app('firebase.auth')->deleteUser($uid);
 
-        $user->delete();
+                // 2. Hapus data pengguna dari Realtime Database
+                app('firebase.database')->getReference('users/' . $uid)->remove();
 
+            } catch (\Exception $e) {
+                // Jika terjadi error, kembalikan ke halaman profil dengan pesan
+                return Redirect::route('profile.edit')->withErrors(['deletion_error' => 'Gagal menghapus akun.']);
+            }
+        }
+
+        // Hapus sesi Laravel
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

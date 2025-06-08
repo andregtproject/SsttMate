@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Kreait\Firebase\Exception\Auth\InvalidPassword;
+use Kreait\Firebase\Exception\Auth\UserNotFound;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,13 +22,38 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $request->authenticate();
+        // 1. Validasi input dari form
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        $request->session()->regenerate();
+        try {
+            // 2. Lakukan otentikasi dengan Firebase
+            $firebaseAuth = app('firebase.auth');
+            $signInResult = $firebaseAuth->signInWithEmailAndPassword($request->email, $request->password);
+            
+            $user = $signInResult->data();
+            $uid = $user['localId'];
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            // 3. Simpan UID pengguna ke dalam sesi
+            $request->session()->put('firebase_uid', $uid);
+            
+            // 4. Paksa simpan data sesi sebelum mengarahkan
+            $request->session()->save();
+
+            // 5. Arahkan ke dashboard jika berhasil
+            return redirect()->intended(route('dashboard', absolute: false));
+
+        } catch (InvalidPassword | UserNotFound $e) {
+            // Tangani jika email atau password salah
+            return back()->withErrors(['email' => trans('auth.failed')])->withInput($request->only('email'));
+        } catch (\Throwable $e) {
+            // Tangani error lainnya
+            return back()->withErrors(['error' => 'Gagal login: ' . $e->getMessage()])->withInput($request->only('email'));
+        }
     }
 
     /**
@@ -36,12 +61,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }
