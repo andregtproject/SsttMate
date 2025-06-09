@@ -1,6 +1,6 @@
 <section>
     <header>
-        <h2 class="text-lg inline-block bg-gradient-to-r from-colorHigh to-colorNormal bg-clip-text text-transparent">
+        <h2 class="text-2xl inline-block bg-gradient-to-r from-colorHigh to-colorNormal bg-clip-text text-transparent">
             {{ __('Update Password') }}
         </h2>
 

@@ -1,17 +1,114 @@
+/* 1. Impor dasar Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .text-stroke-yellow {
-    color: colorBackgroundDark;
-    -webkit-text-stroke: 1px #FFBB01;
+/* 2. Layer untuk komponen kustom */
+@layer components {
+  .glass-header {
+    /* Properti dasar: posisi, blur, dan border bawah */
+    @apply sticky top-0 z-10 backdrop-blur-md border-b;
+
+    /* Gaya Default (Light Mode) menggunakan warna dari config */
+    @apply bg-colorBackgroundLight/60 border-gray-300/60;
+
+    /* Gaya Override (Dark Mode) menggunakan warna dari config */
+    @apply dark:bg-colorBackgroundDark/60 dark:border-white/10;
   }
 }
 
+/* 3. Layer untuk utilitas kustom */
+@layer utilities {
+  .text-stroke-yellow {
+    /* Warna teks diisi dengan warna background gelap agar kontras */
+    color: theme('colors.colorBackgroundDark');
+    -webkit-text-stroke: 1px theme('colors.colorNormal');
+    /* colorNormal adalah #FFBB01 */
+  }
+}
+
+/* 4. Definisi Font Kustom */
 @font-face {
   font-family: 'Baloo';
   src: url('/fonts/baloo/Baloo-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+
+/* 5. Efek Glow Latar Belakang (Dengan Animasi Mengelilingi Halaman) */
+.background-glow {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.background-glow::before,
+.background-glow::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(100px);
+}
+
+.background-glow::before {
+  background-color: #FFBB01; /* Sesuai dengan colorNormal Anda */
+  width: 500px;
+  height: 500px;
+  left: -250px;
+  bottom: -250px;
+
+  /* Animasi baru yang bergerak mengelilingi halaman searah jarum jam */
+  animation: animate-glow-orbit-before 25s linear infinite;
+}
+
+.background-glow::after {
+  background-color: #FF3131; /* Sesuai dengan colorHigh Anda */
+  width: 500px;
+  height: 500px;
+  right: -250px;
+  top: -250px;
+
+  /* Animasi baru yang bergerak berlawanan arah jarum jam */
+  animation: animate-glow-orbit-after 25s linear infinite;
+}
+
+/* Kelas-kelas utilitas untuk form dan button tetap sama */
+.form-checkbox-themed {
+  @apply rounded border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-900 text-colorNormal shadow-sm focus:border-colorNormal focus:ring focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-colorNormal focus:ring-opacity-50;
+}
+
+.form-link-themed {
+  @apply underline text-sm text-gray-600 dark:text-gray-400 hover:text-colorNormal dark:hover:text-colorNormal rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-colorNormal dark:focus:ring-offset-gray-800 transition-colors duration-200;
+}
+
+.primary-button-themed {
+  @apply inline-flex items-center justify-center px-4 py-2 bg-colorNormal border border-transparent rounded-md font-semibold text-xs text-colorBackgroundDark uppercase tracking-widest hover:bg-yellow-500 focus:bg-yellow-500 active:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-colorNormal focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150;
+}
+
+/* 6. Definisi Keyframes Animasi BARU untuk Gerakan Mengelilingi Halaman */
+
+/*
+ * Keyframe untuk glow pertama (kuning).
+ * Bergerak mengelilingi halaman searah jarum jam.
+ */
+@keyframes animate-glow-orbit-before {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.3; }
+  25% { transform: translate(0, -95vh) rotate(90deg) scale(1.2); opacity: 0.5; }
+  50% { transform: translate(95vw, -95vh) rotate(180deg); opacity: 0.4; }
+  75% { transform: translate(95vw, 0) rotate(270deg) scale(1.2); opacity: 0.5; }
+  100% { transform: translate(0, 0) rotate(360deg); opacity: 0.3; }
+}
+
+/*
+ * Keyframe untuk glow kedua (merah).
+ * Bergerak mengelilingi halaman berlawanan arah jarum jam.
+ * Menciptakan efek saling mengejar dengan glow pertama.
+ */
+@keyframes animate-glow-orbit-after {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+  25% { transform: translate(0, 95vh) rotate(-90deg) scale(1.2); opacity: 0.3; }
+  50% { transform: translate(-95vw, 95vh) rotate(-180deg); opacity: 0.4; }
+  75% { transform: translate(-95vw, 0) rotate(-270deg) scale(1.2); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(-360deg); opacity: 0.5; }
 }

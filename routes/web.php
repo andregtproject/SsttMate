@@ -21,9 +21,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    Route::get('/history', function () {
-        return view('history');
-    })->name('history');
+    Route::get('/history', function () {return view('history');})->name('history');
+    Route::get('/guide', function () {return view('guide');})->name('guide');
 });
 
 require __DIR__.'/auth.php';
