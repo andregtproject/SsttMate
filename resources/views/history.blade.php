@@ -29,7 +29,7 @@
                         </h3>
 
                         {{-- Deskripsi/Subjudul --}}
-                        <p class="text-gray-400 max-w-xs">
+                        <p class="text-gray-400 max-w-xs font-normal">
                             Sorry, no history data exists yet.
                             Please check back later.
                         </p>
