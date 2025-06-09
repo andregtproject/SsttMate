@@ -4,7 +4,7 @@
 
 @layer utilities {
   .text-stroke-yellow {
-    color: transparent;
+    color: colorBackgroundDark;
     -webkit-text-stroke: 1px #FFBB01;
   }
 }

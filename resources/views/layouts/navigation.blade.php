@@ -5,7 +5,8 @@
             <!-- Logo and App Name -->
             <div class="flex items-center">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
-                    <x-application-logo class="block h-8 w-8" />
+                    {{-- Ganti x-application-logo dengan tag img --}}
+                    <img src="{{ asset('images/iconic.png') }}" alt="SsttMate Logo" class="block h-8 w-8">
                     <span class="font-baloo text-xl text-stroke-yellow">SsttMate</span>
                 </a>
             </div>
@@ -15,7 +16,7 @@
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Home') }}
                 </x-nav-link>
-                <x-nav-link href="#" :active="request()->routeIs('history')">
+                <x-nav-link :href="route('history')" :active="request()->routeIs('history')">
                     {{ __('History') }}
                 </x-nav-link>
                 <x-nav-link href="#" :active="request()->routeIs('guide')">

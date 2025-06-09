@@ -16,7 +16,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'SsttMate') }}</title>
-        <link rel="icon" href="{{ asset('images/ssttmate_icon.svg') }}" type="image/svg+xml">
+        <link rel="icon" type="image/png" href="{{ asset('images/iconic.png') }}">
+        <!-- <link rel="icon" href="{{ asset('images/ssttmate_icon.svg') }}" type="image/svg+xml"> -->
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

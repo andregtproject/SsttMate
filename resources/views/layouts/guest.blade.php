@@ -16,6 +16,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'SsttMate') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/iconic.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -29,7 +30,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-colorBackgroundLight dark:bg-colorBackgroundDark">
             <div class="flex flex-col items-center justify-center text-center">
                 <a href="/" class="flex flex-col items-center justify-center">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                     <img src="{{ asset('images/iconic.png') }}" alt="SsttMate Logo" class="w-32 h-32 mb-2">
                     <h1 class="font-baloo text-[40px] text-stroke-yellow">SsttMate</h1>
                 </a>
             </div>
