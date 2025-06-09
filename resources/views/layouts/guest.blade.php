@@ -1,5 +1,15 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      x-data="{
+          darkMode: localStorage.getItem('darkMode')
+                    || (!!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),
+          toggle() {
+              this.darkMode = !this.darkMode
+              localStorage.setItem('darkMode', this.darkMode)
+          }
+      }"
+      x-init="$watch('darkMode', val => document.documentElement.classList.toggle('dark', val))"
+      x-bind:class="{ 'dark': darkMode }">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +26,7 @@
 
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0" style="background-color: #181D23;">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-colorBackgroundLight dark:bg-colorBackgroundDark">
             <div class="flex flex-col items-center justify-center text-center">
                 <a href="/" class="flex flex-col items-center justify-center">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />

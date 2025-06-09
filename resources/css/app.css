@@ -16,7 +16,7 @@
   font-style: normal;
 }
 
-@layer base {
+/* @layer base {
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -26,4 +26,4 @@
     -webkit-text-fill-color: #f3f3f3 !important;
     transition: background-color 9999s ease-in-out 0s;
   }
-}
+} */
