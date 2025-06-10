@@ -101,8 +101,83 @@
                             Sound Monitoring
                         </h2>
                     </div>
+                    <div class="w-full overflow-x-auto">
+                        <canvas id="soundChart" height="120"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data awal (kosong)
+        let labels = Array.from({length: 60}, (_, i) => `${i+1}s`);
+        let data = Array.from({length: 60}, () => 0);
+
+        const ctx = document.getElementById('soundChart').getContext('2d');
+        const soundChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'dB',
+                    data: data,
+                    borderColor: 'orange',
+                    backgroundColor: 'rgba(255,165,0,0.1)',
+                    pointBackgroundColor: 'orange',
+                    tension: 0.3,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        title: { display: true, text: 'dB', color: '#ccc' },
+                        ticks: { color: '#ccc' },
+                        grid: { color: '#444' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Last 1 Minute', color: '#ccc' },
+                        ticks: { color: '#ccc' },
+                        grid: { color: '#444' }
+                    }
+                }
+            }
+        });
+
+        let intervalId = null;
+
+        document.getElementById('start-button').addEventListener('click', function() {
+            if (intervalId) return; // Jangan double start
+
+            intervalId = setInterval(() => {
+                fetch('/api/sound/latest')
+                    .then(response => response.json())
+                    .then(result => {
+                        const dbValue = result.db ?? 0;
+                        soundChart.data.datasets[0].data.push(dbValue);
+                        soundChart.data.datasets[0].data.shift();
+                        soundChart.update();
+
+                        // Update indikator dB di atas
+                        document.getElementById('dbValue').textContent = dbValue;
+                    })
+                    .catch(() => {
+                        // Jika error, tetap push 0
+                        soundChart.data.datasets[0].data.push(0);
+                        soundChart.data.datasets[0].data.shift();
+                        soundChart.update();
+                        document.getElementById('dbValue').textContent = '00';
+                    });
+            }, 1000);
+        });
+    </script>
 </x-app-layout>
