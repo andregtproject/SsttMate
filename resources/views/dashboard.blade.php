@@ -116,6 +116,29 @@
         let labels = Array.from({length: 60}, (_, i) => `${i+1}s`);
         let data = Array.from({length: 60}, () => 0);
 
+        // Fungsi untuk cek mode terang/gelap
+        function isDarkMode() {
+            return document.documentElement.classList.contains('dark');
+        }
+
+        function getChartColors() {
+            if (isDarkMode()) {
+                return {
+                    grid: '#444',
+                    label: '#ccc',
+                    bg: 'rgba(255,165,0,0.1)'
+                }
+            } else {
+                return {
+                    grid: '#bbb',
+                    label: '#333',
+                    bg: 'rgba(255,165,0,0.08)'
+                }
+            }
+        }
+
+        let chartColors = getChartColors();
+
         const ctx = document.getElementById('soundChart').getContext('2d');
         const soundChart = new Chart(ctx, {
             type: 'line',
@@ -125,7 +148,7 @@
                     label: 'dB',
                     data: data,
                     borderColor: 'orange',
-                    backgroundColor: 'rgba(255,165,0,0.1)',
+                    backgroundColor: chartColors.bg,
                     pointBackgroundColor: 'orange',
                     tension: 0.3,
                     fill: true,
@@ -140,18 +163,32 @@
                     y: {
                         min: 0,
                         max: 100,
-                        title: { display: true, text: 'dB', color: '#ccc' },
-                        ticks: { color: '#ccc' },
-                        grid: { color: '#444' }
+                        title: { display: true, text: 'dB', color: chartColors.label },
+                        ticks: { color: chartColors.label },
+                        grid: { color: chartColors.grid }
                     },
                     x: {
-                        title: { display: true, text: 'Last 1 Minute', color: '#ccc' },
-                        ticks: { color: '#ccc' },
-                        grid: { color: '#444' }
+                        title: { display: true, text: 'Last 1 Minute', color: chartColors.label },
+                        ticks: { color: chartColors.label },
+                        grid: { color: chartColors.grid }
                     }
                 }
             }
         });
+
+        // Update chart colors jika mode berubah
+        const observer = new MutationObserver(() => {
+            chartColors = getChartColors();
+            soundChart.options.scales.x.ticks.color = chartColors.label;
+            soundChart.options.scales.x.grid.color = chartColors.grid;
+            soundChart.options.scales.x.title.color = chartColors.label;
+            soundChart.options.scales.y.ticks.color = chartColors.label;
+            soundChart.options.scales.y.grid.color = chartColors.grid;
+            soundChart.options.scales.y.title.color = chartColors.label;
+            soundChart.data.datasets[0].backgroundColor = chartColors.bg;
+            soundChart.update();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
         let intervalId = null;
 
