@@ -1,0 +1,1 @@
+Add-Content .gitignore "**/firebase_credentials.json"

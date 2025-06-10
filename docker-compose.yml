@@ -1,0 +1,37 @@
+services:
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "8000:80"
+    volumes:
+      - ./user-service:/var/www/html
+    environment:
+      - SOUND_SERVICE_URL=http://sound-service
+    networks:
+      - app-network
+
+  sound-service:
+    build:
+      context: ./sound-service
+    container_name: sound-service
+    ports:
+      - "8001:80"
+    volumes:
+      - ./sound-service:/var/www/html
+      - sound-service-vendor:/var/www/html/vendor
+      - sound-service-node-modules:/var/www/html/node_modules
+    environment:
+      - FIREBASE_DATABASE_URL=https://tubes-iae-25-default-rtdb.firebaseio.com/
+      - FIREBASE_CREDENTIALS=/var/www/html/config/firebase_credentials.json
+    networks:
+      - app-network
+
+volumes:
+  sound-service-vendor:
+  sound-service-node-modules:
+
+networks:
+  app-network:
+    driver: bridge
