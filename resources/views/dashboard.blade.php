@@ -112,8 +112,8 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Data awal (kosong)
-        let labels = Array.from({length: 60}, (_, i) => `${i+1}s`);
+        // Data awal: 60 menit terakhir (1 jam, 1 data per menit)
+        let labels = Array.from({length: 60}, (_, i) => `${i+1}m`);
         let data = Array.from({length: 60}, () => 0);
 
         // Fungsi untuk cek mode terang/gelap
@@ -168,7 +168,7 @@
                         grid: { color: chartColors.grid }
                     },
                     x: {
-                        title: { display: true, text: 'Last 1 Minute', color: chartColors.label },
+                        title: { display: true, text: 'Last 1 Hour (per Minute)', color: chartColors.label },
                         ticks: { color: chartColors.label },
                         grid: { color: chartColors.grid }
                     }
@@ -191,6 +191,8 @@
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
         let intervalId = null;
+        let minuteBuffer = [];
+        let minuteCount = 0;
 
         document.getElementById('start-button').addEventListener('click', function() {
             if (intervalId) return; // Jangan double start
@@ -200,19 +202,33 @@
                     .then(response => response.json())
                     .then(result => {
                         const dbValue = result.db ?? 0;
-                        soundChart.data.datasets[0].data.push(dbValue);
-                        soundChart.data.datasets[0].data.shift();
-                        soundChart.update();
+                        minuteBuffer.push(dbValue);
 
-                        // Update indikator dB di atas
+                        // Update indikator dB di atas (real-time)
                         document.getElementById('dbValue').textContent = dbValue;
+
+                        // Setiap 60 detik (1 menit), ambil rata-rata dan update chart
+                        minuteCount++;
+                        if (minuteCount >= 60) {
+                            const avg = Math.round(minuteBuffer.reduce((a, b) => a + b, 0) / minuteBuffer.length);
+                            soundChart.data.datasets[0].data.push(avg);
+                            soundChart.data.datasets[0].data.shift();
+                            soundChart.update();
+                            minuteBuffer = [];
+                            minuteCount = 0;
+                        }
                     })
                     .catch(() => {
-                        // Jika error, tetap push 0
-                        soundChart.data.datasets[0].data.push(0);
-                        soundChart.data.datasets[0].data.shift();
-                        soundChart.update();
+                        minuteBuffer.push(0);
                         document.getElementById('dbValue').textContent = '00';
+                        minuteCount++;
+                        if (minuteCount >= 60) {
+                            soundChart.data.datasets[0].data.push(0);
+                            soundChart.data.datasets[0].data.shift();
+                            soundChart.update();
+                            minuteBuffer = [];
+                            minuteCount = 0;
+                        }
                     });
             }, 1000);
         });
