@@ -1,0 +1,36 @@
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Firebase credentials - NEVER COMMIT THESE!
+firebase_credentials.json
+sound-service/config/firebase_credentials.json
+user-service/config/firebase_credentials.json
+# BUT allow example files
+!firebase_credentials.json.example
+!**/firebase_credentials.json.example
+
+# Other sensitive files
+**/*.pem
+**/*.p12
+**/*.key
+**/secrets/
+
+# Environment files that might contain secrets
+.env*
+!.env.example
